@@ -1,6 +1,6 @@
 # ── Backend ──────────────────────────
 backend/target/
-backend/application-local.properties
+backend/application.properties
 backend/*.env
 
 # ── Frontend ─────────────────────────
