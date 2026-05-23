@@ -1,0 +1,552 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Variables shadcn/ui ─── */
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+
+  /* ════════════════════════════════════════════════════
+     MODO OSCURO — Paleta azul-teal profunda
+     Basada en la identidad visual del sidebar (blue-700 → teal-500)
+     ════════════════════════════════════════════════════ */
+  .dark {
+    /* Fondo principal: azul marino profundo con tinte teal */
+    --background: 218 35% 10%;
+    --foreground: 195 30% 90%;
+
+    /* Cards: un escalón más claro que el fondo */
+    --card: 216 30% 14%;
+    --card-foreground: 195 28% 88%;
+
+    /* Popovers */
+    --popover: 216 30% 13%;
+    --popover-foreground: 195 28% 88%;
+
+    /* Primario: cyan-teal brillante (acento de la marca) */
+    --primary: 185 70% 55%;
+    --primary-foreground: 218 35% 8%;
+
+    /* Secundario: azul oscuro medio */
+    --secondary: 216 28% 18%;
+    --secondary-foreground: 195 22% 78%;
+
+    /* Muted */
+    --muted: 216 26% 17%;
+    --muted-foreground: 210 18% 52%;
+
+    /* Accent */
+    --accent: 216 26% 20%;
+    --accent-foreground: 195 28% 88%;
+
+    /* Destructivo */
+    --destructive: 0 55% 45%;
+    --destructive-foreground: 195 28% 92%;
+
+    /* Bordes: azul oscuro sutil */
+    --border: 216 24% 22%;
+    --input: 216 26% 16%;
+    --ring: 185 65% 48%;
+  }
+}
+
+@layer base {
+  * { border-color: hsl(var(--border)); }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+}
+
+/* ─── Fondo global modo oscuro: gradiente azul-teal profundo ─── */
+.dark body {
+  background: linear-gradient(135deg,
+    hsl(220 42% 8%) 0%,
+    hsl(218 38% 10%) 35%,
+    hsl(210 32% 12%) 65%,
+    hsl(190 30% 11%) 100%) !important;
+  background-attachment: fixed !important;
+}
+
+/* ─── Transición global suave ─── */
+html.transitioning,
+html.transitioning * {
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    color 0.2s ease,
+    box-shadow 0.25s ease !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   OVERRIDES GLOBALES MODO OSCURO — Paleta azul-teal
+   ═══════════════════════════════════════════════════════ */
+
+/* --- Fondo principal de pantalla (gradients de page) --- */
+.dark .min-h-screen.bg-gradient-to-br,
+.dark .min-h-screen.bg-gray-50 {
+  background: transparent !important;
+}
+
+/* --- Fondos blancos → azul marino oscuro --- */
+.dark .bg-white          { background-color: hsl(216 30% 14%) !important; }
+.dark .bg-white\/95      { background-color: hsla(216, 30%, 14%, 0.97) !important; }
+.dark .bg-white\/10      { background-color: hsla(195, 60%, 80%, 0.06) !important; }
+.dark .bg-white\/20      { background-color: hsla(195, 60%, 80%, 0.10) !important; }
+.dark .bg-gray-50        { background-color: hsl(218 34% 11%) !important; }
+.dark .bg-gray-100       { background-color: hsl(217 30% 15%) !important; }
+.dark .bg-gray-200       { background-color: hsl(216 26% 19%) !important; }
+
+/* --- Textos grises → claros con tinte azul-gris --- */
+.dark .text-gray-900     { color: hsl(195 28% 92%) !important; }
+.dark .text-gray-800     { color: hsl(195 24% 88%) !important; }
+.dark .text-gray-700     { color: hsl(200 18% 80%) !important; }
+.dark .text-gray-600     { color: hsl(205 14% 66%) !important; }
+.dark .text-gray-500     { color: hsl(210 12% 54%) !important; }
+.dark .text-gray-400     { color: hsl(210 10% 46%) !important; }
+
+/* --- Bordes grises → azul oscuro sutil --- */
+.dark .border-gray-100   { border-color: hsl(216 24% 20%) !important; }
+.dark .border-gray-200   { border-color: hsl(216 24% 23%) !important; }
+.dark .border-gray-300   { border-color: hsl(216 22% 28%) !important; }
+.dark .border-white\/50  { border-color: hsla(195, 40%, 70%, 0.12) !important; }
+
+/* --- Fondos colores pastel → oscuros azul-teal --- */
+.dark .bg-blue-50        { background-color: hsl(218 32% 15%) !important; }
+.dark .bg-sky-50         { background-color: hsl(205 30% 14%) !important; }
+.dark .bg-teal-50        { background-color: hsl(185 28% 13%) !important; }
+.dark .bg-green-50       { background-color: hsl(150 22% 13%) !important; }
+.dark .bg-indigo-50      { background-color: hsl(230 28% 15%) !important; }
+.dark .bg-purple-50      { background-color: hsl(265 22% 15%) !important; }
+.dark .bg-red-50         { background-color: hsl(0 26% 14%) !important; }
+.dark .bg-amber-50       { background-color: hsl(38 24% 13%) !important; }
+.dark .bg-yellow-50      { background-color: hsl(46 22% 13%) !important; }
+.dark .bg-orange-50      { background-color: hsl(28 24% 13%) !important; }
+.dark .bg-rose-50        { background-color: hsl(348 24% 13%) !important; }
+.dark .bg-pink-50        { background-color: hsl(338 22% 13%) !important; }
+.dark .bg-emerald-50     { background-color: hsl(160 22% 12%) !important; }
+.dark .bg-cyan-50        { background-color: hsl(190 28% 13%) !important; }
+
+/* --- Badges (100) --- */
+.dark .bg-teal-100       { background-color: hsl(182 32% 15%) !important; }
+.dark .bg-green-100      { background-color: hsl(150 30% 14%) !important; }
+.dark .bg-blue-100       { background-color: hsl(214 34% 16%) !important; }
+.dark .bg-sky-100        { background-color: hsl(200 32% 15%) !important; }
+.dark .bg-indigo-100     { background-color: hsl(232 30% 16%) !important; }
+.dark .bg-purple-100     { background-color: hsl(268 28% 16%) !important; }
+.dark .bg-red-100        { background-color: hsl(0 30% 15%) !important; }
+.dark .bg-orange-100     { background-color: hsl(28 30% 15%) !important; }
+.dark .bg-amber-100      { background-color: hsl(40 30% 14%) !important; }
+.dark .bg-yellow-100     { background-color: hsl(50 28% 14%) !important; }
+.dark .bg-rose-100       { background-color: hsl(348 28% 15%) !important; }
+.dark .bg-pink-100       { background-color: hsl(338 28% 15%) !important; }
+.dark .bg-emerald-100    { background-color: hsl(160 28% 14%) !important; }
+.dark .bg-cyan-100       { background-color: hsl(190 30% 14%) !important; }
+
+/* --- Bordes de color → azul-teal sutiles --- */
+.dark .border-teal-100   { border-color: hsl(216 24% 22%) !important; }
+.dark .border-teal-200   { border-color: hsl(185 30% 24%) !important; }
+.dark .border-teal-300   { border-color: hsl(182 38% 30%) !important; }
+.dark .border-sky-100    { border-color: hsl(216 24% 22%) !important; }
+.dark .border-sky-200    { border-color: hsl(205 28% 24%) !important; }
+.dark .border-blue-100   { border-color: hsl(216 24% 22%) !important; }
+.dark .border-blue-200   { border-color: hsl(216 26% 25%) !important; }
+.dark .border-blue-300   { border-color: hsl(216 38% 30%) !important; }
+.dark .border-green-200  { border-color: hsl(150 32% 24%) !important; }
+.dark .border-green-300  { border-color: hsl(150 34% 27%) !important; }
+.dark .border-red-200    { border-color: hsl(0 32% 26%) !important; }
+.dark .border-amber-200  { border-color: hsl(38 36% 24%) !important; }
+.dark .border-amber-300  { border-color: hsl(38 38% 27%) !important; }
+.dark .border-yellow-200 { border-color: hsl(48 34% 24%) !important; }
+
+/* --- Textos de colores → vibrantes sobre fondo oscuro --- */
+.dark .text-teal-700     { color: hsl(182 65% 62%) !important; }
+.dark .text-teal-600     { color: hsl(182 60% 58%) !important; }
+.dark .text-teal-500     { color: hsl(182 65% 54%) !important; }
+.dark .text-green-700    { color: hsl(150 55% 60%) !important; }
+.dark .text-green-600    { color: hsl(150 52% 56%) !important; }
+.dark .text-blue-700     { color: hsl(210 80% 74%) !important; }
+.dark .text-blue-600     { color: hsl(210 75% 70%) !important; }
+.dark .text-sky-600      { color: hsl(200 70% 68%) !important; }
+.dark .text-indigo-700   { color: hsl(232 65% 75%) !important; }
+.dark .text-purple-700   { color: hsl(268 58% 75%) !important; }
+.dark .text-red-700      { color: hsl(0 68% 68%) !important; }
+.dark .text-red-600      { color: hsl(0 65% 65%) !important; }
+.dark .text-red-500      { color: hsl(0 70% 65%) !important; }
+.dark .text-orange-700   { color: hsl(28 78% 68%) !important; }
+.dark .text-amber-700    { color: hsl(38 76% 66%) !important; }
+.dark .text-amber-800    { color: hsl(38 70% 62%) !important; }
+.dark .text-yellow-700   { color: hsl(48 78% 65%) !important; }
+.dark .text-rose-700     { color: hsl(348 63% 70%) !important; }
+.dark .text-pink-700     { color: hsl(338 60% 70%) !important; }
+.dark .text-emerald-700  { color: hsl(160 52% 60%) !important; }
+.dark .text-cyan-400     { color: hsl(190 75% 62%) !important; }
+
+/* --- Gradientes de página → azul-teal oscuro profundo --- */
+.dark .from-blue-50      { --tw-gradient-from: hsl(218 34% 10%) !important; }
+.dark .via-teal-50       { --tw-gradient-via: hsl(218 30% 10%) !important; }
+.dark .to-teal-50        { --tw-gradient-to: hsl(210 28% 11%) !important; }
+.dark .from-gray-50      { --tw-gradient-from: hsl(218 34% 10%) !important; }
+.dark .from-blue-100     { --tw-gradient-from: hsl(216 32% 16%) !important; }
+.dark .to-blue-200       { --tw-gradient-to: hsl(216 28% 19%) !important; }
+.dark .from-teal-100     { --tw-gradient-from: hsl(182 28% 14%) !important; }
+.dark .to-emerald-200    { --tw-gradient-to: hsl(160 26% 16%) !important; }
+.dark .from-sky-100      { --tw-gradient-from: hsl(200 28% 14%) !important; }
+.dark .to-sky-200        { --tw-gradient-to: hsl(200 26% 17%) !important; }
+.dark .to-teal-100       { --tw-gradient-to: hsl(182 26% 16%) !important; }
+.dark .to-sky-50         { --tw-gradient-to: hsl(205 26% 14%) !important; }
+
+/* --- Gradiente de fila de estudiante en dashboard --- */
+.dark .from-blue-50.to-sky-50,
+.dark .from-blue-50.to-teal-50,
+.dark .hover\:from-blue-100.hover\:to-teal-100 {
+  background: hsl(216 28% 16%) !important;
+}
+
+/* --- Inputs de formulario → azul marino oscuro --- */
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark textarea,
+.dark select {
+  background-color: hsl(217 30% 13%) !important;
+  color: hsl(195 24% 88%) !important;
+  border-color: hsl(216 24% 24%) !important;
+}
+.dark input:not([type="checkbox"]):not([type="radio"])::placeholder,
+.dark textarea::placeholder {
+  color: hsl(210 12% 46%) !important;
+}
+.dark input:not([type="checkbox"]):not([type="radio"]):focus,
+.dark textarea:focus,
+.dark select:focus {
+  background-color: hsl(216 28% 15%) !important;
+  border-color: hsl(185 55% 42%) !important;
+}
+.dark select option {
+  background-color: hsl(217 30% 13%);
+  color: hsl(195 24% 88%);
+}
+.dark select option:hover,
+.dark select option:focus,
+.dark select option:checked {
+  background-color: hsl(185 55% 28%) !important;
+  color: hsl(185 80% 90%) !important;
+}
+
+/* Accent color for dark mode dropdowns (Webkit/Blink) */
+.dark select {
+  accent-color: hsl(185 65% 48%);
+  color-scheme: dark;
+}
+
+/* ─── Fix: flechas de select en modo oscuro ─── */
+/* Reemplazar la flecha nativa blanca por una azul-cyan visible */
+.dark select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.6rem center !important;
+  background-size: 1rem !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  padding-right: 2.2rem !important;
+}
+
+/* --- Sombras más pronunciadas con tinte azul --- */
+.dark .shadow-sm  { box-shadow: 0 1px 3px 0 rgb(0 8 24 / 0.5) !important; }
+.dark .shadow     { box-shadow: 0 1px 4px 0 rgb(0 8 24 / 0.55) !important; }
+.dark .shadow-md  { box-shadow: 0 4px 10px -1px rgb(0 8 24 / 0.6) !important; }
+.dark .shadow-lg  { box-shadow: 0 8px 18px -2px rgb(0 8 24 / 0.65) !important; }
+.dark .shadow-xl  { box-shadow: 0 12px 28px -4px rgb(0 8 24 / 0.7) !important; }
+.dark .shadow-2xl { box-shadow: 0 20px 44px -8px rgb(0 8 24 / 0.75) !important; }
+
+/* --- Overlays --- */
+.dark .bg-black\/60 { background-color: rgb(0 6 20 / 0.82) !important; }
+.dark .bg-black\/50 { background-color: rgb(0 6 20 / 0.72) !important; }
+
+/* --- Cards con borde sutil azul-teal --- */
+.dark .rounded-2xl,
+.dark .rounded-xl {
+  border-color: hsl(216 24% 22%);
+}
+
+/* --- Hover states mejorados --- */
+.dark .hover\:bg-gray-50:hover   { background-color: hsl(217 28% 15%) !important; }
+.dark .hover\:bg-gray-100:hover  { background-color: hsl(216 26% 18%) !important; }
+.dark .hover\:bg-white\/20:hover { background-color: hsla(195, 60%, 80%, 0.14) !important; }
+.dark .hover\:bg-white\/30:hover { background-color: hsla(195, 60%, 80%, 0.18) !important; }
+
+/* Table row hover — azul-teal visible, contraste con letras */
+.dark .hover\:bg-blue-50:hover   { background-color: hsl(210 30% 18%) !important; }
+.dark .hover\:bg-teal-50:hover   { background-color: hsl(182 28% 17%) !important; }
+.dark .hover\:bg-amber-50:hover  { background-color: hsl(38 24% 16%) !important; }
+.dark .hover\:bg-blue-100:hover  { background-color: hsl(214 32% 20%) !important; }
+.dark .hover\:bg-teal-100:hover  { background-color: hsl(182 30% 19%) !important; }
+
+/* --- StudentDashboard dark overrides --- */
+.dark .dark\:bg-gray-900 { background-color: hsl(218 34% 12%) !important; }
+.dark .dark\:border-gray-700 { border-color: hsl(216 24% 22%) !important; }
+.dark .dark\:hover\:bg-gray-800:hover { background-color: hsl(217 28% 17%) !important; }
+.dark .dark\:text-gray-400 { color: hsl(205 14% 58%) !important; }
+
+/* ─── FAB flotante (switch de modo) ─── */
+#dm-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: #ffffff;
+  border: 1.5px solid #d1d5db;
+  border-radius: 9999px;
+  padding: 0.45rem 1rem 0.45rem 0.65rem;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 0.13);
+  transition: box-shadow 0.2s ease, transform 0.15s ease, background 0.25s ease, border-color 0.25s ease;
+  user-select: none;
+  font-family: inherit;
+  outline: none;
+}
+#dm-fab:hover  { box-shadow: 0 6px 24px rgb(0 0 0 / 0.18); transform: translateY(-1px); }
+#dm-fab:active { transform: translateY(0); }
+
+.dark #dm-fab {
+  background: hsl(216 30% 16%);
+  border-color: hsl(185 40% 30%);
+  box-shadow: 0 4px 18px rgb(0 8 24 / 0.5);
+}
+
+/* Pista del switch */
+.dm-track {
+  position: relative;
+  width: 2.6rem;
+  height: 1.4rem;
+  background: #d1d5db;
+  border-radius: 9999px;
+  flex-shrink: 0;
+  transition: background 0.25s ease;
+}
+.dark .dm-track { background: hsl(185 65% 40%); }
+
+/* Pulgar del switch */
+.dm-thumb {
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  width: 1rem;
+  height: 1rem;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+  transition: transform 0.25s ease;
+}
+.dark .dm-thumb { transform: translateX(1.2rem); }
+
+/* Ícono y texto */
+.dm-icon { font-size: 0.95rem; line-height: 1; }
+.dm-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+.dark .dm-label { color: hsl(195 22% 82%); }
+
+/* ═══════════════════════════════════════════════════════
+   CORRECCIONES ADICIONALES MODO OSCURO
+   ═══════════════════════════════════════════════════════ */
+
+/* ─── Fix 6: Iconos negros/oscuros → azul visible en dark mode ─── */
+/* Iconos de Lucide que heredan color y se ven negros sobre fondo oscuro */
+.dark svg:not([class*="text-"]):not([class*="stroke-"]) {
+  color: hsl(210 60% 72%);
+}
+/* Específicamente iconos que se ven oscuros en cards/panels */
+.dark .text-gray-800 svg,
+.dark .text-gray-900 svg {
+  color: hsl(195 55% 78%) !important;
+}
+
+/* ─── Fix 6: Iconos de acciones en tablas (editar, etc.) ─── */
+.dark .p-2.text-blue-700 {
+  color: hsl(210 75% 68%) !important;
+}
+
+/* ─── Fix 8: Flechas de selects nativos en claro también mejoradas ─── */
+/* En modo claro, las flechas deben verse bien con appearance:none */
+select:not(.dark select) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  background-size: 1rem;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-right: 2.2rem;
+}
+
+/* ─── Fix: Gradientes en modo oscuro — páginas internas ─── */
+/* Eliminar fondos blancos hardcoded en secciones de página completa */
+.dark .from-blue-50.via-teal-50,
+.dark .from-blue-50.via-teal-50.to-cyan-50,
+.dark .from-blue-50.via-teal-50.to-teal-50 {
+  background: linear-gradient(135deg,
+    hsl(220 42% 9%) 0%,
+    hsl(215 36% 11%) 50%,
+    hsl(195 30% 12%) 100%) !important;
+}
+
+/* ─── Fix: Cards con border en modo oscuro ─── */
+.dark .border-4.border-teal-200 {
+  border-color: hsl(185 35% 25%) !important;
+}
+
+/* ─── Fix: Iconos Lucide en encabezados de sección ─── */
+.dark h4 .lucide,
+.dark h2 .lucide,
+.dark h3 .lucide {
+  opacity: 0.9;
+}
+
+/* ─── Fix gradiente del header en modo oscuro ─── */
+.dark header.bg-white {
+  background-color: hsl(216 30% 13%) !important;
+  border-bottom-color: hsl(185 65% 40%) !important;
+}
+
+/* ─── Fix: estados del select de tabla en dark mode ─── */
+.dark select.bg-teal-100  { background-color: hsl(182 32% 18%) !important; color: hsl(182 65% 62%) !important; }
+.dark select.bg-gray-100  { background-color: hsl(217 28% 18%) !important; color: hsl(210 18% 68%) !important; }
+.dark select.bg-red-100   { background-color: hsl(0 30% 18%) !important;   color: hsl(0 68% 68%) !important;  }
+.dark select.bg-yellow-100 { background-color: hsl(46 28% 16%) !important; color: hsl(46 75% 65%) !important; }
+
+/* ─── Mejora degradado general modo oscuro: evitar parches blancos ─── */
+.dark .bg-gradient-to-r.from-blue-600.to-teal-600,
+.dark .bg-gradient-to-r.from-blue-600.to-teal-500 {
+  background: linear-gradient(to right, hsl(215 75% 45%), hsl(185 60% 40%)) !important;
+}
+
+/* ─── Botón teal de contraseña: visible en ambos modos ─── */
+.dark .bg-teal-600\/80 { background-color: hsla(182, 60%, 30%, 0.85) !important; }
+.dark .hover\:bg-teal-500:hover { background-color: hsl(182 60% 38%) !important; }
+
+/* ─── Fix: Badge PENDIENTE en la tabla de estudiantes ─── */
+.dark .bg-yellow-100.text-yellow-700 {
+  background-color: hsl(46 30% 18%) !important;
+  color: hsl(46 80% 68%) !important;
+}
+
+/* ─── Fix: Border izquierdo de secciones en dark ─── */
+.dark .border-l-4.border-blue-500  { border-left-color: hsl(210 75% 55%) !important; }
+.dark .border-l-4.border-teal-500  { border-left-color: hsl(182 60% 50%) !important; }
+.dark .border-l-4.border-pink-500  { border-left-color: hsl(338 65% 58%) !important; }
+.dark .border-l-4.border-red-500   { border-left-color: hsl(0 65% 58%) !important; }
+.dark .border-l-4.border-green-500 { border-left-color: hsl(150 60% 48%) !important; }
+.dark .border-l-4.border-yellow-500 { border-left-color: hsl(46 75% 55%) !important; }
+
+/* ─── Checkboxes personalizados modo oscuro ─── */
+.dark .dark\:border-pink-800 { border-color: hsl(338 40% 30%) !important; }
+.dark .dark\:bg-pink-950\/30 { background-color: hsla(338, 40%, 10%, 0.30) !important; }
+.dark .dark\:hover\:bg-pink-900\/40:hover { background-color: hsla(338, 40%, 14%, 0.40) !important; }
+.dark .dark\:border-pink-600 { border-color: hsl(338 50% 40%) !important; }
+.dark .dark\:text-pink-300 { color: hsl(338 70% 75%) !important; }
+.dark .dark\:border-green-800 { border-color: hsl(150 35% 28%) !important; }
+.dark .dark\:bg-green-950\/30 { background-color: hsla(150, 35%, 10%, 0.30) !important; }
+.dark .dark\:hover\:bg-green-900\/40:hover { background-color: hsla(150, 35%, 14%, 0.40) !important; }
+.dark .dark\:border-green-600 { border-color: hsl(150 45% 36%) !important; }
+.dark .dark\:text-green-300 { color: hsl(150 60% 68%) !important; }
+.dark .dark\:bg-slate-800 { background-color: hsl(216 28% 18%) !important; }
+.dark .dark\:border-slate-700 { border-color: hsl(216 24% 24%) !important; }
+
+/* ─── Gradientes de tarjetas de productividad en modo oscuro ─── */
+.dark .dark\:from-slate-800 { --tw-gradient-from: hsl(216 28% 18%) !important; }
+.dark .dark\:to-slate-700\/60 { --tw-gradient-to: hsla(216, 24%, 22%, 0.60) !important; }
+
+/* ─── Fix: Textos y fondos hardcodeados en CronogramaView y StudentRegistry ─── */
+/* Textos oscuros que no se ven en dark mode */
+.dark .text-gray-800 { color: hsl(215 20% 85%) !important; }
+.dark .text-gray-700 { color: hsl(215 18% 75%) !important; }
+.dark .text-gray-600 { color: hsl(215 15% 65%) !important; }
+.dark .text-gray-500 { color: hsl(215 12% 58%) !important; }
+
+/* Fondos blancos hardcodeados dentro de contenido (no header) */
+.dark .bg-white:not(header) {
+  background-color: hsl(217 28% 16%) !important;
+}
+
+/* Bordes grises en dark */
+.dark .border-gray-100 { border-color: hsl(217 26% 22%) !important; }
+.dark .border-gray-200 { border-color: hsl(217 24% 26%) !important; }
+.dark .border-gray-300 { border-color: hsl(217 22% 30%) !important; }
+
+/* Íconos lucide en sidebar y encabezados de sección en dark */
+.dark .lucide {
+  color: inherit;
+  opacity: 1;
+}
+
+/* Botones de navegación del cronograma (chevrons) */
+.dark button .lucide.text-gray-700,
+.dark button .lucide.text-gray-600 {
+  color: hsl(215 18% 72%) !important;
+}
+
+/* ═══ FIXES MODO OSCURO ═══ */
+
+/* Iconos calendario/reloj en inputs — SVG cyan visible */
+.dark input[type="date"]::-webkit-calendar-picker-indicator,
+.dark input[type="month"]::-webkit-calendar-picker-indicator,
+.dark input[type="week"]::-webkit-calendar-picker-indicator,
+.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'/%3E%3Cline x1='16' y1='2' x2='16' y2='6'/%3E%3Cline x1='8' y1='2' x2='8' y2='6'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3C/svg%3E") !important;
+  background-size: 1rem !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  width: 1.2rem !important; height: 1.2rem !important;
+  opacity: 1 !important; cursor: pointer !important; filter: none !important;
+}
+.dark input[type="time"]::-webkit-calendar-picker-indicator {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2338bdf8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpolyline points='12 6 12 12 16 14'/%3E%3C/svg%3E") !important;
+  background-size: 1rem !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  width: 1.2rem !important; height: 1.2rem !important;
+  opacity: 1 !important; cursor: pointer !important; filter: none !important;
+}
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="month"],
+.dark input[type="datetime-local"] {
+  color-scheme: dark !important;
+  color: hsl(195 24% 88%) !important;
+}
+
+/* Texto tarjetas cronograma (text-*-900 quedan negros en dark) */
+.dark .text-blue-900    { color: hsl(210 90% 88%) !important; }
+.dark .text-teal-900    { color: hsl(182 80% 85%) !important; }
+.dark .text-emerald-900 { color: hsl(160 75% 82%) !important; }
+.dark .text-sky-900     { color: hsl(200 85% 86%) !important; }
+.dark .text-green-900   { color: hsl(150 70% 82%) !important; }

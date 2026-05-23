@@ -1,0 +1,87 @@
+========================================
+HOSPITAL UNIVERSITARIO SAN RAFAEL
+Sistema de Gestión - Versión React
+========================================
+
+PASO 1: REQUISITOS
+-------------------
+- Instala Node.js (versión 16 o superior): https://nodejs.org/
+- Instala Visual Studio Code: https://code.visualstudio.com/
+
+PASO 2: ABRIR EL PROYECTO
+--------------------------
+1. Abre Visual Studio Code
+2. Menú: Archivo > Abrir Carpeta
+3. Selecciona la carpeta "react-export"
+
+PASO 3: ABRIR TERMINAL
+-----------------------
+- Presiona: Ctrl + ` (acento grave)
+- O menú: Terminal > Nueva Terminal
+
+PASO 4: INSTALAR DEPENDENCIAS
+------------------------------
+Escribe en la terminal:
+
+    npm install
+
+Presiona Enter y espera a que termine (puede tardar 2-3 minutos)
+
+PASO 5: EJECUTAR EL PROYECTO
+-----------------------------
+Escribe en la terminal:
+
+    npm run dev
+
+Presiona Enter
+
+PASO 6: ABRIR EN NAVEGADOR
+---------------------------
+Abre tu navegador en:
+
+    http://localhost:5173
+
+¡Listo! El sistema debería estar funcionando.
+
+CREDENCIALES DE PRUEBA:
+-----------------------
+Administrador:
+  Cédula: 1234567890
+  Contraseña: admin2026
+
+Director:
+  Cédula: 52123456
+  Contraseña: director2026
+
+Personal de Salud:
+  Cédula: 79234567
+  Contraseña: medico2026
+
+Estudiante:
+  Cédula: 1001234567
+  Contraseña: est2026
+
+COMANDOS ÚTILES:
+----------------
+- Detener servidor: Ctrl + C
+- Iniciar servidor: npm run dev
+- Compilar para producción: npm run build
+
+PROBLEMAS COMUNES:
+------------------
+Si hay errores al instalar:
+1. Cierra Visual Studio Code
+2. Elimina la carpeta "node_modules"
+3. Abre de nuevo y ejecuta: npm install
+
+Si el puerto 5173 está ocupado:
+- El servidor usará otro puerto automáticamente
+- Revisa la terminal para ver el puerto correcto
+
+CONTACTO:
+---------
+Para soporte técnico, contacta al equipo de desarrollo.
+
+========================================
+Hospital Universitario San Rafael © 2026
+========================================
