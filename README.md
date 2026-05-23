@@ -6,16 +6,17 @@ Sistema web para gestión de estudiantes en prácticas del Hospital Universitari
 
 ## Vista previa del proyecto
 
-
 | Login | Dashboard |
 |---|---|
-| <img width="552" height="1008" alt="image" src="https://github.com/user-attachments/assets/fdcba851-47cf-4c86-9a6d-bdea72ce4dcb" /> | <img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/6cccf937-29cb-4eb5-a1d2-f728507ab100" />
- |
+| <img width="400" src="https://github.com/user-attachments/assets/fdcba851-47cf-4c86-9a6d-bdea72ce4dcb" alt="Login"/> | <img width="400" src="https://github.com/user-attachments/assets/6cccf937-29cb-4eb5-a1d2-f728507ab100" alt="Dashboard"/> |
 
 | Registro de estudiantes | Gestión de horarios |
 |---|---|
-| <img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/93748bfe-cf8d-4de6-8566-70f8f1cfc51a" /> | <img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/6f321b84-3435-4c97-a8e8-5dd27deb3016" />
- | <img width="1600" height="900" alt="image" src="https://github.com/user-attachments/assets/8aa08c5c-a676-44e9-85a2-4d72746ff28a" /> |
+| <img width="400" src="https://github.com/user-attachments/assets/93748bfe-cf8d-4de6-8566-70f8f1cfc51a" alt="Registro de estudiantes"/> | <img width="400" src="https://github.com/user-attachments/assets/6f321b84-3435-4c97-a8e8-5dd27deb3016" alt="Gestión de horarios"/> |
+
+| Cronograma | Presencia |
+|---|---|
+| <img width="400" src="https://github.com/user-attachments/assets/36efd486-9b77-464e-b64a-33925193dfb4" alt="Cronograma"/> | <img width="400" src="https://github.com/user-attachments/assets/8aa08c5c-a676-44e9-85a2-4d72746ff28a" alt="Presencia"/> |
 
 ---
 
