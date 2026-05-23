@@ -8,7 +8,7 @@ Sistema web para gestión de estudiantes en prácticas del Hospital Universitari
 
 | Login | Dashboard |
 |---|---|
-| <img width="200" src="https://github.com/user-attachments/assets/fdcba851-47cf-4c86-9a6d-bdea72ce4dcb" alt="Login"/> | <img width="400" src="https://github.com/user-attachments/assets/6cccf937-29cb-4eb5-a1d2-f728507ab100" alt="Dashboard"/> |
+| <img width="400" src="https://github.com/user-attachments/assets/6db452a4-7a44-4b67-9f0f-58e08b28f074" /> | <img width="400" src="https://github.com/user-attachments/assets/6cccf937-29cb-4eb5-a1d2-f728507ab100" alt="Dashboard"/> |
 
 | Presencia de estudiantes | Gestión de horarios |
 |---|---|
@@ -53,9 +53,6 @@ spring.sql.init.mode=never
 server.port=8080
 spring.application.name=husrt-control-USTA
 ```
-
-> **Importante:** no subas este archivo con credenciales reales al repositorio.
-> Verifica que `application.properties` esté en el `.gitignore` antes de hacer `git push`.
 
 ---
 
