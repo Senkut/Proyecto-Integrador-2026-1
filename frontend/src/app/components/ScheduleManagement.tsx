@@ -1,9 +1,8 @@
 import React from 'react';
 import { useState, useEffect, useRef } from 'react';
-import { Clock, Plus, Trash2, Bell, ChevronDown, X, Users, Edit2, Save, Calendar, Filter, Upload, ChevronLeft, ChevronRight, FileSpreadsheet, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Clock, Plus, Trash2, Bell, ChevronDown, X, Users, Edit2, Save, Calendar, Filter, Upload, ChevronLeft, ChevronRight, FileSpreadsheet, AlertCircle, CheckCircle2, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '../service/api';
-
 
 interface Schedule {
   id: string;
@@ -56,7 +55,7 @@ type DateMode = 'single' | 'week' | 'month' | 'range';
 
 const MONTHS = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
 const DAY_NAMES = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-// DAY_NAMES index 0=Lun..5=Sáb..6=Dom. getDay values: Mon=1..Sat=6, Sun=0
+
 const DAY_GETDAY = [1, 2, 3, 4, 5, 6, 0]; // getDay() values for Lun..Sáb..Dom
 const ITEMS_PER_PAGE = 8;
 
@@ -432,7 +431,7 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
         const exactHits = normalized.filter((v: string) => EXACT_HEADERS.includes(v)).length;
         if (exactHits > bestExactHits) { bestExactHits = exactHits; headerRowIndex = i; }
       }
-      // Si no hubo ningún header exacto, caer en detección por keywords
+      // fallback por keywords
       if (bestExactHits === 0) {
         for (let i = 0; i < Math.min(rows.length, 6); i++) {
           const hits = rows[i].filter((c: any) => {
@@ -498,13 +497,13 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
         const endTime = parseExcelTime(colMap.fin >= 0 ? row[colMap.fin] : '');
         const estudianteRaw = colMap.estudiante >= 0 ? String(row[colMap.estudiante] ?? '').trim() : '';
 
-        // Buscar primero por cédula exacta (flujo normal del Excel), luego por nombre como fallback
+        // busca por cédula o nombreomo fallback
         const doctor = users.find(u => u.cedula === doctorRaw)
           || users.find(u => u.name.toLowerCase().includes(doctorRaw.toLowerCase()) || doctorRaw.toLowerCase().includes(u.name.toLowerCase().split(' ')[0]));
         const student = students.find(s => s.cedula === estudianteRaw)
           || students.find(s => s.name.toLowerCase().includes(estudianteRaw.toLowerCase()) || estudianteRaw.toLowerCase().includes(s.name.toLowerCase().split(' ')[0]));
 
-        // El backend espera la cédula como doctorId/studentId (ver PlanPracticasService)
+        // backend usa cédula como ID)
         const doctorCedula = doctor?.cedula || (users.find(u => u.cedula === doctorRaw) ? doctorRaw : '');
         const studentCedula = student?.cedula || (students.find(s => s.cedula === estudianteRaw) ? estudianteRaw : '');
 
@@ -556,11 +555,11 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
       endTime: row.endTime,
     }));
 
-    // Delegar toda la lógica de red y recarga a App.tsx via onImportBatch
+
     if (onImportBatch) {
       await onImportBatch(payload);
     } else {
-      // Fallback si la prop no está disponible
+      // fallback
       for (const row of payload) {
         onAddSchedule(row);
       }
@@ -581,7 +580,7 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
       <img src={student.foto} alt={student.name} className={`${sz} rounded-full object-cover border-2 border-white shadow flex-shrink-0`} />
     ) : (
       <div className={`${sz} rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow ${student.genero === 'masculino' ? 'bg-gradient-to-br from-blue-400 to-blue-600' : 'bg-gradient-to-br from-teal-400 to-teal-500'}`}>
-        {student.name.charAt(0)}
+        <User className="w-4 h-4" />
       </div>
     );
   };
@@ -632,7 +631,7 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
                       <p className="text-sm font-medium text-gray-800">{student.name}</p>
                       <p className="text-xs text-gray-400">ID: {student.id}</p>
                     </div>
-                    {selected.includes(student.cedula || student.id) && <span className="ml-auto text-blue-600 text-xs font-semibold">✓</span>}
+                    {selected.includes(student.cedula || student.id) && <span className="ml-auto text-blue-600 text-xs font-semibold"></span>}
                   </label>
                 ))}
             </div>
@@ -661,10 +660,7 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
           <FileSpreadsheet className="w-5 h-5" />
           Importar desde Excel
         </button>
-      </div>
-
-      {/* ── EXCEL IMPORT PANEL ── */}
-      {showImport && (
+      </div>      {showImport && (
         <div className="bg-white rounded-2xl shadow-md border-2 border-teal-200 p-6 space-y-4">
           <div className="flex items-center gap-3">
             <FileSpreadsheet className="w-6 h-6 text-teal-600" />
@@ -754,10 +750,7 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
             </div>
           )}
         </div>
-      )}
-
-      {/* ── FORM ── */}
-      <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+      )}      <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
         <h3 className="text-xl font-semibold mb-5">Asignar Horario a Estudiante(s)</h3>
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
@@ -828,10 +821,7 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
                 </button>
               ))}
             </div>
-          </div>
-
-          {/* ── SINGLE: date picker ── */}
-          {dateMode === 'single' && (
+          </div>          {dateMode === 'single' && (
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
@@ -851,10 +841,7 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
                 </div>
               </div>
             </div>
-          )}
-
-          {/* ── WEEK: selector de mes + semana del mes ── */}
-          {dateMode === 'week' && (() => {
+          )}          {dateMode === 'week' && (() => {
             const weeks = getWeeksInMonth(weekMonthYear);
             const selectedWeek = weeks[weekNumber - 1];
             const dayCount = getDatesForMode('week', '', '', weekSelectedDays, undefined, undefined, weekMonthYear, weekNumber).length;
@@ -924,10 +911,7 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
                 </div>
               </div>
             );
-          })()}
-
-          {/* ── MONTH: selector de mes + días del mes ── */}
-          {dateMode === 'month' && (() => {
+          })()}          {dateMode === 'month' && (() => {
             const ref = monthYear || new Date().toISOString().slice(0, 7);
             const [yr, mo] = ref.split('-').map(Number);
             const daysInMonth = new Date(yr, mo, 0).getDate();
@@ -1042,10 +1026,7 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
                 </div>
               </div>
             );
-          })()}
-
-          {/* ── RANGE: fecha inicio + fecha fin ── */}
-          {dateMode === 'range' && (
+          })()}          {dateMode === 'range' && (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -1089,10 +1070,7 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
             {dateMode === 'range' && formData.fecha && formData.fechaFin && ` — ${getModeLabel('range', formData.fecha, formData.fechaFin)}`}
           </button>
         </form>
-      </div>
-
-      {/* ── HORARIOS PROGRAMADOS ── */}
-      <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
+      </div>      <div className="bg-white p-6 rounded-2xl shadow-md border border-gray-100">
         <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
           <h3 className="text-xl font-semibold flex items-center gap-2">
             <Bell className="w-5 h-5 text-orange-500" /> Horarios Programados
@@ -1130,7 +1108,7 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
           {hasFilters && (
             <button onClick={() => { setFilterDate(''); setFilterArea(''); setFilterDoctor(''); }}
               className="px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-xl border-2 border-red-200 font-medium transition-colors mt-auto">
-              ✕ Limpiar
+              Limpiar
             </button>
           )}
           {hasFilters && filteredGroups.length === 0 && (
@@ -1147,8 +1125,8 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
             const d = new Date(rep.fecha + 'T00:00:00');
             const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
             const dayName = dayNames[d.getDay()];
-            const isToday = rep.fecha === new Date().toISOString().split('T')[0];
-            const isPast = rep.fecha < new Date().toISOString().split('T')[0];
+            const nowLocal = new Date(); const todayLocal = `${nowLocal.getFullYear()}-${String(nowLocal.getMonth() + 1).padStart(2, '0')}-${String(nowLocal.getDate()).padStart(2, '0')}`; const isToday = rep.fecha === todayLocal;
+            const isPast = rep.fecha < todayLocal;
             return (
               <div key={`${rep.fecha}|${rep.area}|${rep.doctorId}|${rep.startTime}`}
                 className={`p-4 rounded-xl border-2 transition-shadow hover:shadow-md ${isToday ? 'border-teal-300 bg-blue-50' : isPast ? 'border-gray-100 bg-gray-50 opacity-80' : 'border-gray-100 bg-white'}`}>
@@ -1196,7 +1174,7 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
             </span>
             <div className="flex items-center gap-2">
               <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1}
-                className="px-2 py-1 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">«</button>
+                className="px-2 py-1 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">&laquo;</button>
               <button onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}
                 className="p-1.5 border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">
                 <ChevronLeft className="w-4 h-4" />
@@ -1214,14 +1192,11 @@ export function ScheduleManagement({ schedules, users, students, areas, onAddSch
                 <ChevronRight className="w-4 h-4" />
               </button>
               <button onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages}
-                className="px-2 py-1 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">»</button>
+                className="px-2 py-1 text-xs border border-gray-200 rounded-lg disabled:opacity-40 hover:bg-gray-50">&raquo;</button>
             </div>
           </div>
         )}
-      </div>
-
-      {/* ── EDIT MODAL ── */}
-      {editingSchedule && (
+      </div>      {editingSchedule && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 max-h-[90vh] overflow-y-auto">
             <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">

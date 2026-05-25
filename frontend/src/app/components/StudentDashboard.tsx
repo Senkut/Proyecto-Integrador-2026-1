@@ -93,7 +93,7 @@ interface StudentDashboardProps {
 }
 
 export function StudentDashboard({ student, schedules, users, onCheckIn, onCheckOut, onUpdateStudent, darkMode, onToggleDark }: StudentDashboardProps) {
-  // Si el estudiante está PENDIENTE, mostrar formulario de completar datos
+  // pendiente: mostrar form
   if (student.estado === 'PENDIENTE') {
     if (!onUpdateStudent) {
       return (
@@ -116,14 +116,14 @@ export function StudentDashboard({ student, schedules, users, onCheckIn, onCheck
   const [showPwActual, setShowPwActual] = useState(false);
   const [showPwNueva, setShowPwNueva] = useState(false);
 
-  // Filtrar horarios del estudiante (por id o por cédula, según cómo los guarda el backend)
+  // horarios del estudiantel backend)
   const mySchedules = schedules.filter(s =>
     s.studentId === student.id ||
     s.studentId === student.cedula
   );
 
   // Horarios de hoy
-  const today = new Date().toISOString().split('T')[0];
+  const now = new Date(); const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const todaySchedules = mySchedules.filter(s => s.fecha === today);
 
   // Horarios de la semana
@@ -184,7 +184,7 @@ export function StudentDashboard({ student, schedules, users, onCheckIn, onCheck
     setCedula('');
   };
 
-  // Calcular estadísticas
+
   const totalHorasEstaSemana = weekSchedules.reduce((acc, s) => {
     const start = new Date(`2000-01-01T${s.startTime}`);
     const end = new Date(`2000-01-01T${s.endTime}`);
@@ -215,7 +215,7 @@ export function StudentDashboard({ student, schedules, users, onCheckIn, onCheck
             {student.foto ? (
               <img src={student.foto} alt={student.name} className="w-full h-full object-cover" />
             ) : (
-              <span className="text-5xl">{student.genero === 'masculino' ? <User className="w-5 h-5" /> : <UserCircle2 className="w-5 h-5" />}</span>
+              <User className="w-12 h-12" />
             )}
           </div>
           <div className="flex-1">
@@ -401,7 +401,7 @@ export function StudentDashboard({ student, schedules, users, onCheckIn, onCheck
                               <div className="text-xs text-red-600 font-medium mt-1"> Llegaste tarde</div>
                             )}
                             {student.checkInTime <= todaySchedules[0].startTime && (
-                              <div className="text-xs text-teal-600 font-medium mt-1">✓ A tiempo</div>
+                              <div className="text-xs text-teal-600 font-medium mt-1">A tiempo</div>
                             )}
                           </>
                         ) : (
@@ -421,7 +421,7 @@ export function StudentDashboard({ student, schedules, users, onCheckIn, onCheck
                               <div className="text-xs text-red-600 font-medium mt-1"> Saliste temprano</div>
                             )}
                             {student.checkOutTime >= todaySchedules[0].endTime && (
-                              <div className="text-xs text-teal-600 font-medium mt-1">✓ Completaste el turno</div>
+                              <div className="text-xs text-teal-600 font-medium mt-1">Completaste el turno</div>
                             )}
                           </>
                         ) : (
@@ -567,14 +567,14 @@ export function StudentDashboard({ student, schedules, users, onCheckIn, onCheck
 
           {/* Turno de hoy destacado */}
           {(() => {
-            const hoy = new Date().toISOString().split('T')[0];
+            const hoy_now = new Date(); const hoy = `${hoy_now.getFullYear()}-${String(hoy_now.getMonth() + 1).padStart(2, '0')}-${String(hoy_now.getDate()).padStart(2, '0')}`;
             const turnosHoy = mySchedules.filter(s => s.fecha === hoy);
             if (turnosHoy.length === 0) return null;
             return (
               <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border-2 border-teal-400 dark:border-teal-700 p-6">
                 <h3 className="text-lg font-bold text-teal-700 dark:text-teal-400 mb-4 flex items-center gap-2">
                   <span className="w-3 h-3 bg-teal-500 rounded-full animate-pulse inline-block"></span>
-                  Turno de Hoy — {new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
+                  Turno de Hoy | {new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
                 </h3>
                 <div className="space-y-3">
                   {turnosHoy.map(s => {
@@ -642,19 +642,19 @@ export function StudentDashboard({ student, schedules, users, onCheckIn, onCheck
                 {mySchedules
                   .sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
                   .map((s) => {
-                    const hoy = new Date().toISOString().split('T')[0];
+                    const hoy_now = new Date(); const hoy = `${hoy_now.getFullYear()}-${String(hoy_now.getMonth() + 1).padStart(2, '0')}-${String(hoy_now.getDate()).padStart(2, '0')}`;
                     const esHoy = s.fecha === hoy;
                     const esPasado = s.fecha < hoy;
                     const doc = users.find(u => u.id === s.doctorId || u.cedula === s.doctorId);
 
-                    // Calcular duración del turno
+
                     const [hI, mI] = s.startTime.split(':').map(Number);
                     const [hF, mF] = s.endTime.split(':').map(Number);
                     const durMin = (hF * 60 + mF) - (hI * 60 + mI);
                     const durHoras = Math.floor(durMin / 60);
                     const durMins = durMin % 60;
 
-                    // Buscar registro de asistencia de ese día
+
                     const registroAsistencia = student.attendanceHistory?.find(r => r.fecha === s.fecha);
 
                     return (
@@ -711,21 +711,20 @@ export function StudentDashboard({ student, schedules, users, onCheckIn, onCheck
                             {esPasado ? (
                               registroAsistencia ? (
                                 <div>
-                                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${
-                                    registroAsistencia.cumplimiento === 'completo' ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300' :
+                                  <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold ${registroAsistencia.cumplimiento === 'completo' ? 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300' :
                                     registroAsistencia.cumplimiento === 'llegada_tarde' ? 'bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300' :
-                                    'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300'
-                                  }`}>
-                                    {registroAsistencia.cumplimiento === 'completo' ? '✓ Completo' :
-                                     registroAsistencia.cumplimiento === 'llegada_tarde' ? '⚠ Tarde' : '⚠ Temprano'}
+                                      'bg-orange-100 dark:bg-orange-900/40 text-orange-700 dark:text-orange-300'
+                                    }`}>
+                                    {registroAsistencia.cumplimiento === 'completo' ? 'Completo' :
+                                      registroAsistencia.cumplimiento === 'llegada_tarde' ? 'Tarde' : 'Temprano'}
                                   </span>
                                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                    {registroAsistencia.checkInTime} → {registroAsistencia.checkOutTime}
+                                    {registroAsistencia.checkInTime} - {registroAsistencia.checkOutTime}
                                   </p>
                                 </div>
                               ) : (
                                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300">
-                                  ✗ Sin registro
+                                  Sin registro
                                 </span>
                               )
                             ) : esHoy ? (
@@ -734,7 +733,7 @@ export function StudentDashboard({ student, schedules, users, onCheckIn, onCheck
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
-                                ⏳ Próximo
+                                Próximo
                               </span>
                             )}
                           </div>
@@ -848,7 +847,7 @@ export function StudentDashboard({ student, schedules, users, onCheckIn, onCheck
 
               {/* Aspectos Familiares */}
               <div className="border-l-4 border-pink-500 pl-4 self-start">
-                <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">‍‍‍ Aspectos Familiares</h3>
+                <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 mb-3">Aspectos Familiares</h3>
                 <div className="space-y-2 text-sm">
                   <div><span className="text-gray-600 dark:text-gray-400">Padre:</span> <span className="font-medium">{student.nombrePadre ? `${student.nombrePadre}${student.edadPadre ? ` (${student.edadPadre} años)` : ''}` : 'No especificado'}</span></div>
                   <div><span className="text-gray-600 dark:text-gray-400">Madre:</span> <span className="font-medium">{student.nombreMadre ? `${student.nombreMadre}${student.edadMadre ? ` (${student.edadMadre} años)` : ''}` : 'No especificado'}</span></div>

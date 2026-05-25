@@ -39,12 +39,12 @@ export function PresencePanel({ users, schedules, students, areas, onCheckIn, on
   const [cedula, setCedula] = useState('');
   const currentTime = new Date();
   const currentTimeStr = `${String(currentTime.getHours()).padStart(2, '0')}:${String(currentTime.getMinutes()).padStart(2, '0')}`;
-  const today = new Date().toISOString().split('T')[0];
+  const _now = new Date(); const today = `${_now.getFullYear()}-${String(_now.getMonth() + 1).padStart(2, '0')}-${String(_now.getDate()).padStart(2, '0')}`;
 
-  // Estudiantes que han hecho check-in y están activos
+  // presentes activos
   const studentsInHospital = students.filter(s => s.checkInTime && !s.checkOutTime && s.estado === 'ACTIVO');
 
-  // Obtener el área de cada estudiante presente desde sus horarios de hoy
+  // área de cada estudiante
   const getStudentArea = (studentId: string): string | undefined => {
     const todaySchedule = schedules.find(s =>
       s.studentId === studentId &&
@@ -63,7 +63,7 @@ export function PresencePanel({ users, schedules, students, areas, onCheckIn, on
     );
   };
 
-  // Calcular ocupación por área
+  // ocupación por área
   const areaOccupancy = areas.map(area => {
     const ocupados = studentsInHospital.filter(s => getStudentArea(s.id) === area.nombre).length;
     const porcentaje = (ocupados / area.capacidadMaxima) * 100;
@@ -211,7 +211,7 @@ export function PresencePanel({ users, schedules, students, areas, onCheckIn, on
                   const actualStart = student.checkInTime;
                   const actualEnd = student.checkOutTime;
 
-                  // Calcular si llegó tarde o salió temprano
+
                   const isLate = scheduledStart && actualStart ? actualStart > scheduledStart : false;
                   const isEarly = scheduledEnd && actualEnd ? actualEnd < scheduledEnd : false;
 
@@ -229,7 +229,7 @@ export function PresencePanel({ users, schedules, students, areas, onCheckIn, on
                           ) : (
                             <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-xl ${student.genero === 'masculino' ? 'bg-gradient-to-br from-blue-500 to-blue-700' : 'bg-gradient-to-br from-rose-400 to-pink-500'
                               }`}>
-                              {student.genero === 'masculino' ? <User className="w-4 h-4" /> : <UserCircle2 className="w-4 h-4" />}
+                              <User className="w-4 h-4" />
                             </div>
                           )}
                           <div>
@@ -432,13 +432,13 @@ export function PresencePanel({ users, schedules, students, areas, onCheckIn, on
                             <>
                               {isLate && <div className="text-red-600"><AlertTriangle className="w-3 h-3 inline mr-1" />Llegó tarde</div>}
                               {isEarly && <div className="text-red-600"><AlertTriangle className="w-3 h-3 inline mr-1" />Salió antes de tiempo</div>}
-                              {!isLate && !isEarly && actualStart && actualEnd && <div className="text-teal-600">✓ Cumplió horario</div>}
+                              {!isLate && !isEarly && actualStart && actualEnd && <div className="text-teal-600">Cumplió horario</div>}
                               {actualStart && !actualEnd && <div className="text-blue-600"><Timer className="w-3 h-3 inline mr-1" />Aún en turno</div>}
                             </>
                           ) : (
                             <>
                               {actualStart && !actualEnd && <div className="text-blue-600"><Timer className="w-3 h-3 inline mr-1" />En turno (sin horario)</div>}
-                              {actualStart && actualEnd && <div className="text-gray-600">✓ Registro completo</div>}
+                              {actualStart && actualEnd && <div className="text-gray-600">Registro completo</div>}
                             </>
                           )}
                         </div>

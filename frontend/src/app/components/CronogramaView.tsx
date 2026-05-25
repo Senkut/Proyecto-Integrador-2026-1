@@ -57,7 +57,7 @@ function addDays(date: Date, days: number): Date {
 }
 
 function toISODate(date: Date): string {
-  return date.toISOString().split('T')[0];
+  const d2 = date; return `${d2.getFullYear()}-${String(d2.getMonth() + 1).padStart(2, '0')}-${String(d2.getDate()).padStart(2, '0')}`;
 }
 
 const DAY_COLORS = [
@@ -181,7 +181,7 @@ export function CronogramaView({ schedules, users, students, areas }: Cronograma
         {(filterArea || filterDoctor) && (
           <button onClick={() => { setFilterArea(''); setFilterDoctor(''); }}
             className="px-3 py-2 text-sm text-red-500 hover:bg-red-50 rounded-xl border-2 border-red-200 font-medium transition-colors">
-            ✕ Limpiar filtros
+            Limpiar filtros
           </button>
         )}
       </div>

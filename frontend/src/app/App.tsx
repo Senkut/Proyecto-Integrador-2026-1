@@ -140,9 +140,8 @@ interface Student {
   attendanceHistory?: AttendanceRecord[]; // Historial de asistencia
 }
 
-
 export default function App() {
-  // Dark mode — persiste en localStorage
+  // dark mode con persistencia
   const [darkMode, setDarkMode] = useState<boolean>(() => {
     const saved = localStorage.getItem('darkMode');
     if (saved !== null) return saved === 'true';
@@ -151,7 +150,7 @@ export default function App() {
 
   React.useEffect(() => {
     const root = document.documentElement;
-    // Activa transición suave
+    // transición al cambiar tema
     root.classList.add('transitioning');
     if (darkMode) {
       root.classList.add('dark');
@@ -165,11 +164,11 @@ export default function App() {
 
   const toggleDarkMode = () => setDarkMode(prev => !prev);
 
-  // Sistema de autenticación
+  // auth
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<{ documento: string; role: string; name: string; studentData?: Student; permissions?: string[] } | null>(null);
 
-  // TODOS los useState deben estar al inicio, antes de cualquier return condicional
+  // estados globales
   const [backendOnline, setBackendOnline] = useState<boolean | null>(null);
   const [users, setUsers] = useState<User[]>([]);
 
@@ -178,11 +177,9 @@ export default function App() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [activeView, setActiveView] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-
-  // ── Carga de datos desde el backend ──────────────────────────────────────
   const cargarDatos = useCallback(async () => {
     try {
-      // Verificar si el backend está online
+      // chequeo de conexión
       const [estudiantesRes, usuariosRes, areasRes, horariosRes, registrosHoyRes] = await Promise.allSettled([
         api.getEstudiantes(),
         api.getUsuarios(),
@@ -194,14 +191,13 @@ export default function App() {
       setBackendOnline(true);
 
       if (estudiantesRes.status === 'fulfilled' && Array.isArray(estudiantesRes.value)) {
-        // Construir mapa cedula → registro de hoy desde la BD
-        // para rehidratar checkInTime / checkOutTime / attendanceHistory
+        // mapa de registros de hoy
         const registrosHoy: Record<string, any> = {};
         if (registrosHoyRes.status === 'fulfilled' && Array.isArray(registrosHoyRes.value)) {
           for (const r of registrosHoyRes.value) {
             const cedula = String(r.cedula || '');
             if (!cedula) continue;
-            // Conservar el registro más reciente si hay varios en el día
+            // último registro del día
             if (!registrosHoy[cedula] || r.timestamp_entrada > registrosHoy[cedula].timestamp_entrada) {
               registrosHoy[cedula] = r;
             }
@@ -213,10 +209,10 @@ export default function App() {
           const reg = registrosHoy[base.cedula];
           if (!reg) return base;
 
-          // Extraer hora HH:mm de los timestamps ISO que viene del backend
+          // parseo de timestamps
           const toHHmm = (ts: string | null | undefined): string | undefined => {
             if (!ts) return undefined;
-            // timestamp puede venir como "2026-05-18T17:43:16.868931" o "2026-05-18 17:43:16.868931"
+
             const parte = ts.replace('T', ' ');
             return parte.substring(11, 16); // "HH:mm"
           };
@@ -231,7 +227,7 @@ export default function App() {
           const checkOutTime = toHHmm(reg.timestamp_salida);
           const checkOutDate = toFecha(reg.timestamp_salida);
 
-          // Reconstruir attendanceHistory si el registro del día está completo
+          // historial de asistencia
           const attendanceHistory = [...(base.attendanceHistory || [])];
           if (checkInTime && checkOutTime && checkInDate) {
             const [inH, inM] = checkInTime.split(':').map(Number);
@@ -286,7 +282,15 @@ export default function App() {
     cargarDatos();
   }, [cargarDatos]);
 
-  // Modal cambio de contraseña desde sidebar
+  // reintento automático si el backend no respondió al inicio
+  useEffect(() => {
+    if (backendOnline === false) {
+      const t = setTimeout(() => cargarDatos(), 4000);
+      return () => clearTimeout(t);
+    }
+  }, [backendOnline, cargarDatos]);
+
+  // modal cambio contraseña
   const [showSidebarPwModal, setShowSidebarPwModal] = useState(false);
   const [sidebarPwActual, setSidebarPwActual] = useState('');
   const [sidebarPwNueva, setSidebarPwNueva] = useState('');
@@ -309,12 +313,12 @@ export default function App() {
         toast.error(res.mensaje || 'Error al crear usuario');
         return;
       }
-      // Recargar lista del backend
+      // recarga lista
       const lista = await api.getUsuarios();
       if (Array.isArray(lista)) setUsers(lista.map(mapUsuarioFromBackend));
       toast.success('Usuario creado correctamente');
     } catch {
-      // Fallback local si el backend no está disponible
+      // fallback local
       const newUser: User = { ...userData, id: Date.now().toString() };
       setUsers(prev => [...prev, newUser]);
       toast.warning('Usuario creado localmente (backend no disponible)');
@@ -340,7 +344,7 @@ export default function App() {
   };
 
   const handleAddSchedule = async (scheduleData: Omit<Schedule, 'id'>) => {
-    // Persistir en backend
+    // guarda en backend
     try {
       const res = await api.createHorario({
         studentId: scheduleData.studentId,
@@ -354,11 +358,11 @@ export default function App() {
         toast.error(res.mensaje || 'Error al crear horario');
         return;
       }
-      // Recargar horarios del backend
+      // recarga horarios
       const lista = await api.getHorarios();
       if (Array.isArray(lista)) setSchedules(lista.map(mapHorarioFromBackend));
     } catch {
-      // Fallback local
+      // fallback local
       setSchedules(prev => {
         const duplicate = prev.find(s =>
           s.studentId === scheduleData.studentId &&
@@ -409,8 +413,7 @@ export default function App() {
     toast.success('Área eliminada');
   };
 
-  // Importación masiva desde Excel: intenta batch, hace fallback fila a fila,
-  // y recarga los horarios UNA sola vez al terminar.
+  // importar horarios desde Excel
   const handleImportBatch = async (rows: Array<{ studentId: string; doctorId: string; area: string; fecha: string; startTime: string; endTime: string }>) => {
     if (rows.length === 0) return;
     let exitosos = 0;
@@ -418,7 +421,7 @@ export default function App() {
     const erroresMsgs: string[] = [];
 
     try {
-      // Intentar endpoint batch primero
+      // intento batch
       const res = await (api as any).importarHorarios(rows);
       if (res && res.total !== undefined) {
         exitosos = res.exitosos ?? 0;
@@ -428,7 +431,7 @@ export default function App() {
         throw new Error('endpoint_not_available');
       }
     } catch {
-      // Fallback: enviar una por una, ESPERANDO cada respuesta
+      // fallback fila a fila
       for (const row of rows) {
         try {
           const res = await api.createHorario(row);
@@ -445,7 +448,7 @@ export default function App() {
       }
     }
 
-    // UNA sola recarga al terminar todo
+    // recarga al terminar
     try {
       const lista = await api.getHorarios();
       if (Array.isArray(lista)) setSchedules(lista.map(mapHorarioFromBackend));
@@ -466,9 +469,9 @@ export default function App() {
   };
 
   const handleUpdateSchedule = async (id: string, data: Partial<Schedule>) => {
-    // Actualizar estado local inmediatamente (optimistic update)
+    // optimistic update
     setSchedules(prev => prev.map(s => s.id === id ? { ...s, ...data } : s));
-    // Persistir en backend si hay campos de horario
+    // guarda en backend si hay campos de horario
     if (data.startTime !== undefined || data.endTime !== undefined || data.area !== undefined) {
       const current = schedules.find(s => s.id === id);
       if (current) {
@@ -487,14 +490,14 @@ export default function App() {
             if (Array.isArray(lista)) setSchedules(lista.map(mapHorarioFromBackend));
           }
         } catch {
-          // Mantener cambio local si el backend no esta disponible
+          // mantiene local
         }
       }
     }
   };
 
   const handleAddStudent = async (studentData: any) => {
-    // Verificar si la cédula ya existe
+    // validar duplicado
     const cedulaExists = students.some(s => s.cedula === studentData.cedula);
     if (cedulaExists) {
       toast.error('Esta cédula ya está registrada en el sistema');
@@ -508,7 +511,7 @@ export default function App() {
         toast.error(res.mensaje || 'Error al registrar estudiante');
         return;
       }
-      // Recargar lista desde backend
+      // recarga lista
       const lista = await api.getEstudiantes();
       if (Array.isArray(lista)) setStudents(lista.map(mapEstudianteFromBackend));
       toast.success(`Estudiante ${studentData.name || studentData.nombresCompletos} registrado exitosamente`);
@@ -532,10 +535,10 @@ export default function App() {
     const existing = students.find(s => s.id === id);
     const merged = { ...existing, ...studentData } as Student;
 
-    // Actualizar local inmediatamente (optimistic)
+    // optimistic update
     setStudents(students.map(s => s.id === id ? merged : s));
 
-    // Si el usuario actual es el estudiante que se está actualizando, actualizar también currentUser
+    // sync currentUser si es el mismo
     if (currentUser?.role === 'estudiante' && currentUser.studentData?.id === id) {
       setCurrentUser({
         ...currentUser,
@@ -543,7 +546,7 @@ export default function App() {
       });
     }
 
-    // FIX: si todos los campos requeridos están completos y venía PENDIENTE, auto-ACTIVO
+    // auto-activar si perfil completo
     const camposCompletos = !!(
       merged.nombresCompletos && (merged.apellidosCompletos || merged.apellidos) && merged.cedula &&
       merged.programa && merged.institucionEducativa &&
@@ -557,7 +560,7 @@ export default function App() {
       setStudents(prev => prev.map(s => s.id === id ? merged : s));
     }
 
-    // Persistir en backend
+    // guarda en backend
     try {
       if (existing?.cedula) {
         const payload = mapEstudianteToBackend(merged);
@@ -587,10 +590,7 @@ export default function App() {
       return false;
     }
 
-    // FIX: El backend es la fuente de verdad.
-    // Si el backend rechaza (ARL vencida, sin horario, etc.), se muestra el error
-    // y NO se hace registro local. El catch solo permite continuar si el backend
-    // está completamente caído (sin conexión).
+    // backend como fuente de verdad
     try {
       const res = await api.checkin(cedula);
       if (!res || res.ok === false) {
@@ -598,14 +598,14 @@ export default function App() {
         return false;
       }
     } catch (err) {
-      // Backend no disponible — registrar solo localmente con advertencia
+      // sin conexión, registro local
       toast.error('No se pudo conectar con el servidor. El ingreso se registró solo localmente.');
       console.warn('Backend no disponible para checkin:', err);
     }
 
     const now = new Date();
     const checkInTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const checkInDate = now.toISOString().split('T')[0];
+    const checkInDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
     const updatedStudent = {
       ...student,
@@ -647,8 +647,7 @@ export default function App() {
       return;
     }
 
-    // FIX: El backend es la fuente de verdad para el checkout también.
-    // Si retorna ok=false, mostrar el error y NO actualizar el estado local.
+    // backend como fuente de verdad
     try {
       const res = await api.checkout(cedula);
       if (!res || res.ok === false) {
@@ -656,14 +655,14 @@ export default function App() {
         return;
       }
     } catch (err) {
-      // Backend no disponible — continuar con registro local con advertencia
+      // sin conexión, registro local
       toast.error('No se pudo conectar con el servidor. La salida se registró solo localmente.');
       console.warn('Backend no disponible para checkout:', err);
     }
 
     const now = new Date();
     const checkOutTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    const checkOutDate = now.toISOString().split('T')[0];
+    const checkOutDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
     const [inHours, inMinutes] = student.checkInTime!.split(':').map(Number);
     const [outHours, outMinutes] = checkOutTime.split(':').map(Number);
@@ -721,7 +720,7 @@ export default function App() {
   };
 
   const totalStudents = students.filter(s => s.estado === 'ACTIVO').length;
-  const today = new Date().toISOString().split('T')[0];
+  const _n = new Date(); const today = `${_n.getFullYear()}-${String(_n.getMonth() + 1).padStart(2, '0')}-${String(_n.getDate()).padStart(2, '0')}`;
   const totalSchedulesToday = schedules.filter(s => s.fecha === today).length;
 
   const menuItems = [
@@ -735,7 +734,7 @@ export default function App() {
     { id: 'reportes', label: 'Reportes', icon: FileText },
   ];
 
-  // Credencial única del Administrador (hardcodeada - no se puede modificar desde la interfaz)
+  // credenciales admin
   const ADMIN_CREDENTIALS = {
     cedula: '1234567890',
     password: 'admin2026',
@@ -743,14 +742,13 @@ export default function App() {
   };
 
   const handleLogin = async (documento: string, password: string, role: string) => {
-    // ── El administrador se valida siempre localmente (no va al backend) ──
     if (role === 'administrador') {
       if (documento === ADMIN_CREDENTIALS.cedula && password === ADMIN_CREDENTIALS.password) {
         setCurrentUser({
           documento: ADMIN_CREDENTIALS.cedula,
           role: 'administrador',
           name: ADMIN_CREDENTIALS.name,
-          permissions: [] // permisos vacíos → hasPermission() usa el rol
+          permissions: []
         });
         setIsAuthenticated(true);
         toast.success(`¡Bienvenido/a ${ADMIN_CREDENTIALS.name}!`);
@@ -760,12 +758,12 @@ export default function App() {
       return;
     }
 
-    // Intentar login desde el backend primero
+    // login contra backend
     try {
       const res = await api.login(documento, password);
 
       if (res?.ok === true) {
-        // Normalizar el rol: 'admin' → 'administrador', etc.
+        // normaliza rol
         const normalizeRole = (r: string) => {
           if (!r) return role;
           const map: Record<string, string> = { admin: 'administrador' };
@@ -773,13 +771,13 @@ export default function App() {
         };
         const backendRole = normalizeRole(res.role || role);
 
-        // Verificar que el rol del backend coincida con el seleccionado en el formulario
+        // valida rol
         if (backendRole !== role) {
           toast.error('Credenciales incorrectas. Por favor verifica tus datos.');
           return;
         }
 
-        // Si es estudiante, buscar sus datos en la lista local
+        // busca datos del estudiante
         if (backendRole === 'estudiante') {
           const student = students.find(s => s.cedula === documento);
           if (student) {
@@ -799,12 +797,12 @@ export default function App() {
           }
         }
 
-        // Para otros roles: usar permisos del backend o vacío (fallback a rol)
+        // otros roles
         setCurrentUser({
           documento,
           role: backendRole,
           name: res.name || '',
-          permissions: [] // dejar vacío para que hasPermission() use el rol
+          permissions: []
         });
         setIsAuthenticated(true);
         toast.success(`¡Bienvenido/a ${res.name?.split(' ')[0] || documento}!`);
@@ -859,7 +857,7 @@ export default function App() {
     setActiveView('dashboard');
   };
 
-  // Si no está autenticado, mostrar pantalla de login
+  // pantalla de login
   if (!isAuthenticated) {
     return (
       <>
@@ -869,8 +867,7 @@ export default function App() {
     );
   }
 
-  // Si es estudiante PENDIENTE, forzar completar perfil
-  // Leer estado en tiempo real del array students, no de la copia en currentUser
+  // estudiante pendiente → completar perfil
   const estudianteEnVivo = currentUser?.role === 'estudiante'
     ? students.find(s => s.cedula === currentUser.documento)
     : null;
@@ -878,10 +875,8 @@ export default function App() {
   if (currentUser?.role === 'estudiante' && estudianteEnVivo?.estado === 'PENDIENTE') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-teal-50 to-teal-50">
-        <Toaster position="top-right" richColors />
-        {/* ── FAB Modo Oscuro/Claro ── */}
-        <button id="dm-fab" onClick={toggleDarkMode} title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
-          <span className="dm-icon">{darkMode ? '☀️' : '🌙'}</span>
+        <Toaster position="top-right" richColors />        <button id="dm-fab" onClick={toggleDarkMode} title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
+          {darkMode ? <Sun className="dm-icon w-4 h-4 text-yellow-400" /> : <Moon className="dm-icon w-4 h-4 text-slate-600" />}
           <div className="dm-track"><div className="dm-thumb" /></div>
           <span className="dm-label">{darkMode ? 'Modo claro' : 'Modo oscuro'}</span>
         </button>
@@ -926,14 +921,12 @@ export default function App() {
     );
   }
 
-  // Si es estudiante, mostrar su dashboard especial
+  // dashboard del estudiante
   if (currentUser?.role === 'estudiante' && currentUser.studentData) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-teal-50 to-teal-50">
-        <Toaster position="top-right" richColors />
-        {/* ── FAB Modo Oscuro/Claro ── */}
-        <button id="dm-fab" onClick={toggleDarkMode} title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
-          <span className="dm-icon">{darkMode ? '☀️' : '🌙'}</span>
+        <Toaster position="top-right" richColors />        <button id="dm-fab" onClick={toggleDarkMode} title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
+          {darkMode ? <Sun className="dm-icon w-4 h-4 text-yellow-400" /> : <Moon className="dm-icon w-4 h-4 text-slate-600" />}
           <div className="dm-track"><div className="dm-thumb" /></div>
           <span className="dm-label">{darkMode ? 'Modo claro' : 'Modo oscuro'}</span>
         </button>
@@ -986,7 +979,7 @@ export default function App() {
     );
   }
 
-  // Handler cambiar contraseña desde sidebar
+  // cambio de contraseña
   const handleSidebarChangePassword = async () => {
     if (!sidebarPwActual) { toast.error('Ingresa tu contraseña actual'); return; }
     if (sidebarPwNueva.length < 6) { toast.error('La nueva contraseña debe tener mínimo 6 caracteres'); return; }
@@ -1000,25 +993,25 @@ export default function App() {
         return;
       }
     } catch {
-      // Si el backend no está disponible, verificar localmente como fallback
+      // fallback local
       const userInList = users.find(u => u.cedula === currentUser?.documento);
       const studentInList = students.find(s => s.cedula === currentUser?.documento);
       const actualPw = userInList?.password || studentInList?.password || currentUser?.documento;
       if (sidebarPwActual !== actualPw) { toast.error('La contraseña actual es incorrecta'); return; }
     }
 
-    // Actualizar en estado local también
+    // actualiza local
     const userInList = users.find(u => u.cedula === currentUser?.documento);
     const studentInList = students.find(s => s.cedula === currentUser?.documento);
     if (userInList) handleUpdateUser(userInList.id, { password: sidebarPwNueva });
     else if (studentInList) handleUpdateStudent(studentInList.id, { password: sidebarPwNueva });
 
-    toast.success('✅ Contraseña actualizada correctamente');
+    toast.success('Contraseña actualizada correctamente');
     setShowSidebarPwModal(false);
     setSidebarPwActual(''); setSidebarPwNueva(''); setSidebarPwConfirm('');
   };
 
-  // Filtrar menú según permisos del rol
+  // menú filtrado por rol
   const filteredMenuItems = menuItems.filter(item => {
     const viewPermissionMap: Record<string, string> = {
       'dashboard': 'ver_dashboard',
@@ -1033,24 +1026,20 @@ export default function App() {
 
     const requiredPermission = viewPermissionMap[item.id];
     if (!requiredPermission) return true;
-    // Siempre usar el rol para determinar permisos (los permisos del backend son informativos)
+    // usa rol
     return hasPermission(currentUser?.role || '', requiredPermission);
   });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-teal-50 to-teal-50 flex">
-      <Toaster position="top-right" richColors />
-
-      {/* ── FAB Modo Oscuro/Claro (esquina inferior derecha) ── */}
-      <button id="dm-fab" onClick={toggleDarkMode} title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
-        <span className="dm-icon">{darkMode ? '☀️' : '🌙'}</span>
+      <Toaster position="top-right" richColors />      <button id="dm-fab" onClick={toggleDarkMode} title={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
+        {darkMode ? <Sun className="dm-icon w-4 h-4 text-yellow-400" /> : <Moon className="dm-icon w-4 h-4 text-slate-600" />}
         <div className="dm-track"><div className="dm-thumb" /></div>
         <span className="dm-label">{darkMode ? 'Modo claro' : 'Modo oscuro'}</span>
       </button>
 
-
       {/* Sidebar */}
-      <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gradient-to-b from-blue-700 to-teal-500 text-white transition-all duration-300 flex flex-col shadow-xl`}>
+      <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-gradient-to-b from-teal-500 to-blue-700 text-white transition-all duration-300 flex flex-col shadow-xl`}>
         {/* Logo */}
         <div className="p-6 flex items-center justify-between border-b border-teal-500/30">
           {sidebarOpen ? (
@@ -1163,6 +1152,24 @@ export default function App() {
         <main className="flex-1 overflow-auto p-8">
           {activeView === 'dashboard' && (
             <div className="space-y-6">
+              {/* Banner offline */}
+              {backendOnline === false && (
+                <div className="flex items-center justify-between gap-4 bg-red-50 border-2 border-red-200 rounded-2xl px-6 py-4">
+                  <div className="flex items-center gap-3">
+                    <AlertTriangle className="w-5 h-5 text-red-500 flex-shrink-0" />
+                    <div>
+                      <p className="font-bold text-red-700 text-sm">Backend desconectado</p>
+                      <p className="text-xs text-red-600">No se pueden cargar los datos. Verifica que el servidor esté corriendo en el puerto 8080.</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={cargarDatos}
+                    className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold flex items-center gap-2 flex-shrink-0 transition-colors"
+                  >
+                    <Activity className="w-4 h-4" /> Reconectar
+                  </button>
+                </div>
+              )}
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="bg-white rounded-2xl shadow-lg border-2 border-teal-100 p-6 col-span-1 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden">
@@ -1261,7 +1268,7 @@ export default function App() {
                   <h2 className="text-lg font-semibold text-gray-800 mb-4">Horarios de Hoy</h2>
                   <div className="space-y-3">
                     {schedules.filter(s => {
-                      const today = new Date().toISOString().split('T')[0];
+                      const _n = new Date(); const today = `${_n.getFullYear()}-${String(_n.getMonth() + 1).padStart(2, '0')}-${String(_n.getDate()).padStart(2, '0')}`;
                       return s.fecha === today;
                     }).slice(0, 6).map(schedule => {
                       const student = students.find(s => (s.cedula || s.id) === schedule.studentId || s.id === schedule.studentId);
@@ -1272,7 +1279,7 @@ export default function App() {
                             {student?.foto ? (
                               <img src={student.foto} alt={student.name} className="w-8 h-8 rounded-full object-cover border-2 border-blue-200" />
                             ) : (
-                              <span className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${student?.genero === 'masculino' ? 'bg-gradient-to-br from-blue-500 to-blue-700' : 'bg-gradient-to-br from-rose-400 to-pink-500'}`}>{student?.genero === 'masculino' ? <User className="w-4 h-4" /> : <UserCircle2 className="w-4 h-4" />}</span>
+                              <span className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${student?.genero === 'masculino' ? 'bg-gradient-to-br from-blue-500 to-blue-700' : 'bg-gradient-to-br from-rose-400 to-pink-500'}`}>{<User className="w-4 h-4" />}</span>
                             )}
                             <div className="font-medium text-sm text-gray-800">{student?.name}</div>
                           </div>
@@ -1283,7 +1290,7 @@ export default function App() {
                       );
                     })}
                     {schedules.filter(s => {
-                      const today = new Date().toISOString().split('T')[0];
+                      const _n = new Date(); const today = `${_n.getFullYear()}-${String(_n.getMonth() + 1).padStart(2, '0')}-${String(_n.getDate()).padStart(2, '0')}`;
                       return s.fecha === today;
                     }).length === 0 && (
                         <div className="text-center py-8 text-gray-500 text-sm">Sin horarios hoy</div>
@@ -1360,10 +1367,7 @@ export default function App() {
             />
           )}
         </main>
-      </div>
-
-      {/* ── MODAL CAMBIAR CONTRASEÑA (sidebar) ── */}
-      {showSidebarPwModal && (
+      </div>      {showSidebarPwModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
             <div className="flex items-center gap-3 mb-6">
