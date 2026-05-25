@@ -13,7 +13,6 @@ public class ResultadoAcceso {
     public ResultadoAcceso() {
     }
 
-    // Constructor aprobado
     public static ResultadoAcceso aprobado(Estudiante e, String servicio, String franja) {
         ResultadoAcceso r = new ResultadoAcceso();
         r.aprobado = true;
@@ -25,7 +24,6 @@ public class ResultadoAcceso {
         return r;
     }
 
-    // Constructor rechazado
     public static ResultadoAcceso rechazado(String motivo) {
         ResultadoAcceso r = new ResultadoAcceso();
         r.aprobado = false;

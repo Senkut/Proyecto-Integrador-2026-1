@@ -13,7 +13,6 @@ public class AsignacionPractica {
     private LocalTime horaFin;
     private LocalDate fechaEspecifica;
 
-    // campos para respuesta al frontend
     private String nombreEstudiante;
     private String nombreServicio;
     private String nombreDocente;

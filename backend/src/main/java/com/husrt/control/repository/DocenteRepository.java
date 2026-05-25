@@ -48,7 +48,6 @@ public class DocenteRepository {
     }
 
     public Optional<Docente> buscarPorCedula(String cedula) {
-        // Asegúrate que el RowMapper incluya el campo 'activo'
         List<Docente> r = jdbc.query(
                 "SELECT * FROM docente WHERE cedula = ?", mapper, cedula);
         return r.isEmpty() ? Optional.empty() : Optional.of(r.get(0));

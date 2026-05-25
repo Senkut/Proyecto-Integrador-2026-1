@@ -15,7 +15,6 @@ public class ReporteRepository {
         this.jdbc = jdbc;
     }
 
-    // Historial completo de accesos de un estudiante
     public List<Map<String, Object>> historialPorEstudiante(String cedula) {
         return jdbc.queryForList("""
                 SELECT e.nombres_completos || ' ' || e.apellidos_completos AS nombre_completo,
@@ -37,7 +36,6 @@ public class ReporteRepository {
                 """, cedula);
     }
 
-    // Estudiantes con ARL vencida o que vence en los próximos 15 días
     public List<Map<String, Object>> arlProximaAVencer() {
         return jdbc.queryForList("""
                 SELECT e.cedula,
@@ -53,7 +51,6 @@ public class ReporteRepository {
                 """);
     }
 
-    // Intentos rechazados de hoy con motivo
     public List<Map<String, Object>> rechazadosHoy() {
         return jdbc.queryForList("""
                 SELECT e.cedula,
@@ -68,7 +65,6 @@ public class ReporteRepository {
                 """);
     }
 
-    // Horas acumuladas por estudiante en el semestre
     public List<Map<String, Object>> horasAcumuladas() {
         return jdbc.queryForList("""
                 SELECT e.cedula,

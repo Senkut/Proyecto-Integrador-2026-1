@@ -62,7 +62,6 @@ public class PlanPracticasService {
             }
             String nombreArea = datos.get("area").toString();
 
-            // Búsqueda tolerante: unaccent+lower → solo lower → exacta
             Integer idServicio = null;
             try {
                 idServicio = jdbc.query(
@@ -70,7 +69,6 @@ public class PlanPracticasService {
                         (rs, rn) -> rs.getInt(1), nombreArea)
                         .stream().findFirst().orElse(null);
             } catch (Exception ex) {
-                // unaccent no disponible, intentar solo con lower()
                 try {
                     idServicio = jdbc.query(
                             "SELECT id_servicio FROM servicio_hospitalario WHERE lower(nombre) = lower(?)",
@@ -85,7 +83,6 @@ public class PlanPracticasService {
             }
 
             if (idServicio == null) {
-                // Listar áreas disponibles para mensaje de error útil
                 List<String> disponibles = jdbc.query(
                         "SELECT nombre FROM servicio_hospitalario ORDER BY nombre",
                         (rs, rn) -> rs.getString(1));
@@ -105,11 +102,6 @@ public class PlanPracticasService {
         }
     }
 
-    /**
-     * Importación masiva desde Excel.
-     * Recibe una lista de filas y devuelve un resumen con contadores y errores por
-     * fila.
-     */
     public Map<String, Object> importarLote(List<Map<String, Object>> filas) {
         int exitosos = 0;
         int fallidos = 0;

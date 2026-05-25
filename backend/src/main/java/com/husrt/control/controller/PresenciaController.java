@@ -25,13 +25,6 @@ public class PresenciaController {
                 "alertas", service.obtenerAlertas());
     }
 
-    /**
-     * Retorna TODOS los registros de acceso aprobados de HOY (con entrada y salida
-     * si existe).
-     * El frontend lo usa al iniciar para rehidratar checkInTime / checkOutTime /
-     * attendanceHistory
-     * sin perder datos al recargar la página.
-     */
     @GetMapping("/hoy")
     public List<Map<String, Object>> registrosHoy() {
         return service.registrosHoy();

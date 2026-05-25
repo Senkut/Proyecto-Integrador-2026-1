@@ -21,15 +21,13 @@ public class EstudianteController {
         this.service = service;
     }
 
-    // GET /registro → muestra el formulario + la tabla
     @GetMapping
     public String mostrarRegistro(Model model) {
         model.addAttribute("estudiante", new Estudiante());
         model.addAttribute("estudiantes", service.obtenerTodos());
-        return "registro"; // busca src/main/resources/templates/registro.html
+        return "registro";
     }
 
-    // POST /registro → guarda el estudiante y redirige
     @PostMapping
     public String guardarEstudiante(@ModelAttribute Estudiante estudiante,
             RedirectAttributes attrs) {

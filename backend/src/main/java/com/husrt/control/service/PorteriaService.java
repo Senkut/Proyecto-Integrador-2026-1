@@ -25,7 +25,6 @@ public class PorteriaService {
 
         public ResultadoAcceso validarIngreso(String cedula) {
 
-                // VALIDACION 1 — Está registrado en el sistema?
                 Optional<Estudiante> opt = estudianteRepo.buscarPorCedula(cedula);
                 if (opt.isEmpty()) {
                         return ResultadoAcceso.rechazado(
@@ -34,14 +33,12 @@ public class PorteriaService {
 
                 Estudiante e = opt.get();
 
-                // VALIDACION 2 — Completó la inducción hospitalaria?
                 if (e.getInduccionCompletada() == null || !e.getInduccionCompletada()) {
                         return ResultadoAcceso.rechazado(
                                         e.getNombresCompletos() + " " + e.getApellidosCompletos() +
                                                         " no ha completado la induccion hospitalaria.");
                 }
 
-                // VALIDACION 3 — Tiene ARL vigente hoy?
                 if (e.getArlVigenciaFin() == null ||
                                 e.getArlVigenciaFin().isBefore(LocalDate.now())) {
                         String vence = e.getArlVigenciaFin() != null
@@ -52,7 +49,6 @@ public class PorteriaService {
                                                         ". Debe renovar antes de ingresar.");
                 }
 
-                // VALIDACION 4 — Tiene asignacion para hoy en este horario?
                 List<Map<String, Object>> asignaciones = porteriaRepo.buscarAsignacionVigente(e.getIdEstudiante());
 
                 if (asignaciones.isEmpty()) {
@@ -67,8 +63,6 @@ public class PorteriaService {
                 String servicio = asignacion.get("nombre_servicio") + " — Piso " + asignacion.get("piso");
                 String franja = asignacion.get("hora_inicio") + " - " + asignacion.get("hora_fin");
 
-                // VALIDACION 5 — El docente ya ingresó?
-                // Solo advertencia, no bloquea.
                 boolean docentePresente = porteriaRepo.docenteIngresoHoy(idPlan);
 
                 // Si ya está dentro, bloquear doble ingreso
@@ -78,18 +72,12 @@ public class PorteriaService {
                                                         " ya tiene un ingreso activo sin salida registrada.");
                 }
 
-                // Todo OK — registrar ingreso
                 porteriaRepo.registrarIngreso(e.getIdEstudiante(), idAsignacion,
                                 "APROBADO", null);
 
                 return ResultadoAcceso.aprobado(e, servicio, franja);
         }
 
-        /**
-         * FIX: Ahora retorna un ResultadoAcceso en lugar de String,
-         * para que el controller pueda comunicar errores reales al frontend
-         * (p.ej. cédula no encontrada, o no había ingreso abierto para cerrar).
-         */
         public ResultadoAcceso registrarSalida(String cedula) {
                 Optional<Estudiante> opt = estudianteRepo.buscarPorCedula(cedula);
                 if (opt.isEmpty()) {
@@ -106,7 +94,6 @@ public class PorteriaService {
                                                         "Verifique que haya registrado su entrada primero.");
                 }
 
-                // Reutilizamos ResultadoAcceso.aprobado con un mensaje de salida
                 ResultadoAcceso r = new ResultadoAcceso();
                 r.setAprobado(true);
                 r.setMensaje("Salida registrada para " + e.getNombresCompletos() +

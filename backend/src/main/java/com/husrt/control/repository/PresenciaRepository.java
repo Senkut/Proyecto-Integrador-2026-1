@@ -15,7 +15,6 @@ public class PresenciaRepository {
         this.jdbc = jdbc;
     }
 
-    // Estudiantes actualmente dentro (ingresaron hoy, sin salida)
     public List<Map<String, Object>> estudiantesDentro() {
         return jdbc.queryForList("""
                 SELECT e.cedula,
@@ -62,13 +61,6 @@ public class PresenciaRepository {
                 """);
     }
 
-    /**
-     * Todos los registros de acceso APROBADOS de HOY (entrada + salida si existe).
-     * Incluye la cédula del estudiante para que el frontend pueda rehidratar
-     * checkInTime, checkOutTime y attendanceHistory al recargar la página.
-     * FIX: Se añaden hora_inicio y hora_fin para que el frontend pueda calcular
-     * el cumplimiento real (completo / llegada_tarde / salida_temprano / sin_horario).
-     */
     public List<Map<String, Object>> registrosHoy() {
         return jdbc.queryForList("""
                 SELECT e.cedula,

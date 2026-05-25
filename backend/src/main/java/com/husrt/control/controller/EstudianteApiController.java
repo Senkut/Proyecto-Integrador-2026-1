@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@RestController // ← RestController, no Controller
-@RequestMapping("/api/estudiantes") // ← ruta correcta
+@RestController
+@RequestMapping("/api/estudiantes")
 public class EstudianteApiController {
 
     private final EstudianteService service;
@@ -32,9 +32,9 @@ public class EstudianteApiController {
             m.put("name", (nombres + " " + apellidos).trim());
             m.put("nombresCompletos", nombres);
             m.put("apellidos", apellidos);
-            m.put("apellidosCompletos", apellidos); // FIX: enviar también con la clave que espera el frontend al editar
+            m.put("apellidosCompletos", apellidos);
             m.put("cedula", e.getCedula());
-            m.put("universidad", e.getInstitucionEducativa()); // nombre de la institución, no el ID
+            m.put("universidad", e.getInstitucionEducativa());
             m.put("programa", e.getProgramaAcademico());
             m.put("semestre", e.getSemestreAcademico());
             m.put("estado", e.getEstado() != null ? e.getEstado().toUpperCase() : "ACTIVO");
@@ -90,12 +90,10 @@ public class EstudianteApiController {
         System.out.println(">>> DATOS RECIBIDOS: " + datos);
         Estudiante e = new Estudiante();
 
-        // Nombres — el frontend manda nombresCompletos y apellidos por separado
         String nombresCompletos = (String) datos.get("nombresCompletos");
         Object _apellidosRaw = datos.getOrDefault("apellidosCompletos", datos.get("apellidos"));
         String apellidosCompletos = _apellidosRaw != null ? _apellidosRaw.toString() : "";
 
-        // Compatibilidad con formato antiguo que manda "name" completo
         if (nombresCompletos == null || nombresCompletos.isBlank()) {
             String nameCompleto = (String) datos.get("name");
             if (nameCompleto != null) {
@@ -121,7 +119,6 @@ public class EstudianteApiController {
         e.setNombreRepresentante((String) datos.get("nombreRepresentante"));
         e.setParentesco((String) datos.get("parentesco"));
         e.setGrupoSanguineo((String) datos.get("grupoSanguineo"));
-        // Representante (campos adicionales)
         e.setDireccionRepresentante((String) datos.get("direccionRepresentante"));
         e.setCiudadRepresentante((String) datos.get("ciudadRepresentante"));
         e.setCelularRepresentante((String) datos.get("celularRepresentante"));
@@ -232,12 +229,11 @@ public class EstudianteApiController {
             System.err.println("Error parseando fecha: " + ex.getMessage());
         }
 
-        // Foto de perfil (base64 o URL)
+        // Foto de perfil base64
         String fotoUrlPost = (String) datos.get("fotoUrl");
         if (fotoUrlPost != null && !fotoUrlPost.isBlank())
             e.setFotoUrl(fotoUrlPost);
 
-        // Contraseña: usar la enviada, o la cédula como default
         String pwd = (String) datos.get("password");
         e.setPassword((pwd != null && !pwd.isBlank()) ? pwd : e.getCedula());
 
@@ -260,7 +256,6 @@ public class EstudianteApiController {
             String nombresCompletos = (String) datos.get("nombresCompletos");
             String apellidosCompletos = _ap;
 
-            // Compatibilidad con formato que manda "name" completo
             if (nombresCompletos == null || nombresCompletos.isBlank()) {
                 String nameCompleto = (String) datos.get("name");
                 if (nameCompleto != null) {
@@ -286,11 +281,9 @@ public class EstudianteApiController {
             e.setParentesco((String) datos.get("parentesco"));
             e.setGrupoSanguineo((String) datos.get("grupoSanguineo"));
             e.setTieneHijos(Boolean.TRUE.equals(datos.get("tieneHijos")));
-            // FIX: campos del representante que faltaban en el PATCH
             e.setDireccionRepresentante((String) datos.get("direccionRepresentante"));
             e.setCiudadRepresentante((String) datos.get("ciudadRepresentante"));
             e.setCelularRepresentante((String) datos.get("celularRepresentante"));
-            // FIX: campos de familia
             e.setNombrePadre((String) datos.get("nombrePadre"));
             e.setNombreMadre((String) datos.get("nombreMadre"));
             e.setNombreHijos((String) datos.get("nombreHijos"));
@@ -317,7 +310,6 @@ public class EstudianteApiController {
                 } catch (NumberFormatException ignored) {
                 }
             }
-            // FIX: campos de salud
             e.setEnfermedadesGenerales((String) datos.get("enfermedadesGenerales"));
             e.setEnfermedadesMentales((String) datos.get("enfermedadesMentales"));
             e.setMedicamentos((String) datos.get("medicamentos"));
@@ -359,12 +351,10 @@ public class EstudianteApiController {
                 }
             }
 
-            // Estado e inducción
             Object estadoObj = datos.get("estado");
             e.setEstado(estadoObj != null ? estadoObj.toString().toLowerCase() : "activo");
             e.setInduccionCompletada(Boolean.TRUE.equals(datos.get("induccionHospitalaria")));
 
-            // Fechas opcionales
             try {
                 String fechaARLInicioP = (String) datos.get("fechaARLInicio");
                 if (fechaARLInicioP != null && !fechaARLInicioP.isBlank())
@@ -384,13 +374,12 @@ public class EstudianteApiController {
                 System.err.println("Error parseando fecha en PATCH: " + ex.getMessage());
             }
 
-            // Actualizar password si viene en el PATCH
             Object pwdPatch = datos.get("password");
             if (pwdPatch != null && !pwdPatch.toString().isBlank()) {
                 e.setPassword(pwdPatch.toString());
             }
 
-            // Foto de perfil (base64 o URL) — solo actualizar si viene en el body
+            // Esta en base 64
             String fotoUrlPatch = (String) datos.get("fotoUrl");
             if (fotoUrlPatch != null && !fotoUrlPatch.isBlank()) {
                 e.setFotoUrl(fotoUrlPatch);

@@ -83,7 +83,6 @@ public class Estudiante {
     public Estudiante() {
     }
 
-    // ===== GETTERS Y SETTERS =====
     public Integer getIdEstudiante() {
         return idEstudiante;
     }

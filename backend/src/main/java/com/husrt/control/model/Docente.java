@@ -7,7 +7,7 @@ public class Docente {
     private String apellido;
     private Integer idUniversidad;
     private String programaQueSupervisa;
-    private String rol; // medico, docente, director
+    private String rol;
     private String password;
     private String estado;
     private Boolean activo;

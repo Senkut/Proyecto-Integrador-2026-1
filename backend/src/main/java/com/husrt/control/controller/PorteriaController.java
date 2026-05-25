@@ -24,7 +24,6 @@ public class PorteriaController {
         return "porteria";
     }
 
-    // Endpoint legado para plantilla Thymeleaf (se mantiene por compatibilidad)
     @PostMapping("/validar")
     public String validarIngreso(@RequestParam String cedula, Model model) {
         ResultadoAcceso resultado = service.validarIngreso(cedula);
@@ -33,7 +32,6 @@ public class PorteriaController {
         return "porteria";
     }
 
-    // Endpoint legado para plantilla Thymeleaf (se mantiene por compatibilidad)
     @PostMapping("/salida")
     public String registrarSalida(@RequestParam String cedula, Model model) {
         ResultadoAcceso resultado = service.registrarSalida(cedula);
@@ -55,11 +53,6 @@ public class PorteriaController {
         return resp;
     }
 
-    /**
-     * FIX: checkOutApi ahora devuelve ok=false cuando hay un error real
-     * (cédula no encontrada, o el estudiante no tiene ingreso abierto hoy).
-     * Antes siempre devolvía ok=true, ocultando el error al frontend.
-     */
     @PostMapping("/checkout")
     @ResponseBody
     public Map<String, Object> checkOutApi(@RequestBody Map<String, String> body) {
